@@ -1,4 +1,4 @@
-from app import app
+from ecom import app
 
 
 @app.route('/api')

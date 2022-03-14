@@ -1,5 +1,5 @@
 import pytest
-from app import app
+from ecom import app
 
 
 @pytest.fixture
