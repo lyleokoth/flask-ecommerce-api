@@ -33,8 +33,11 @@ on:
     branches: [ development, staging, production]
   workflow_dispatch:
 
+env:
+  APP_NAME: flask-ecommerce-api
+
 jobs:
-  build:
+  Build:
 
     runs-on: ubuntu-latest
     env:
@@ -117,3 +120,56 @@ jobs:
       uses: peter-evans/commit-comment@v1
       with:
         body: ${{ steps.pytester-cov.outputs.output-table }}
+
+  DeployDev:
+    name: Deploy to Dev 
+    if: github.event_name == 'pull_request'
+    needs: [Build]
+    runs-on: ubuntu-latest
+    environment: 
+      name: Development
+      url: 'https://${{env.APP_NAME}}-dev.herokuapp.com/'
+    steps:
+      - name: Deploy
+        run: echo I am deploying ${{ env.APP_NAME }} at https://${{env.APP_NAME}}-dev.herokuapp.com/
+      - uses: actions/checkout@v2
+      - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "${{ env.APP_NAME }}-dev" #Must be unique in Heroku
+          heroku_email: "okothlyleochieng@gmail.com"
+
+  DeployStaging:
+    name: Deploy to Staging 
+    if: github.event.ref == 'refs/heads/staging'
+    needs: [Build]
+    runs-on: ubuntu-latest
+    environment: 
+      name: Staging
+      url: 'https://${{env.APP_NAME}}-staging.herokuapp.com/'
+    steps:
+      - name: Deploy
+        run: echo I am deploying ${{ env.APP_NAME }} at https://${{env.APP_NAME}}-staging.herokuapp.com/
+      - uses: actions/checkout@v2
+      - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "${{ env.APP_NAME }}-staging" #Must be unique in Heroku
+          heroku_email: "okothlyleochieng@gmail.com"
+
+  DeployProd:
+    name: Deploy to Production 
+    needs: [DeployStaging]
+    runs-on: ubuntu-latest
+    environment: 
+      name: Production
+      url: 'https://${{env.APP_NAME}}-production.herokuapp.com/'
+    steps:
+      - name: Deploy
+        run: echo I am deploying ${{ env.APP_NAME }} at https://${{env.APP_NAME}}-production.herokuapp.com/
+      - uses: actions/checkout@v2
+      - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "${{ env.APP_NAME }}-production" #Must be unique in Heroku
+          heroku_email: "okothlyleochieng@gmail.com"
