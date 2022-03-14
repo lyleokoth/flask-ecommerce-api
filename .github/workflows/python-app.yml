@@ -24,7 +24,7 @@
 #   * peter-evans/commit-comment@v1: adds message to commit
 # **************************************************************************************************************** #
 
-name: Pytester workflow
+name: Build and Deploy.
 
 on:
   push:
